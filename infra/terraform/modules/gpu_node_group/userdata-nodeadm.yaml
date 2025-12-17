@@ -1,0 +1,30 @@
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="NODEADM-BOUNDARY"
+
+--NODEADM-BOUNDARY
+Content-Type: application/nodeadm.k8s.io
+
+apiVersion: nodeadm.k8s.io/v1beta2
+kind: NodeConfig
+spec:
+  cluster:
+    name: ${cluster_name}
+    apiServerEndpoint: ${cluster_endpoint}
+    certificateAuthority: ${cluster_ca}
+  kubelet:
+    flags:
+      - --node-labels=accelerator=nvidia,nvidia.com/gpu=true
+      - --register-with-taints=nvidia.com/gpu=true:NoSchedule
+      - --pod-infra-container-image=602401143452.dkr.ecr.us-east-1.amazonaws.com/eks/pause:3.9
+    config:
+      clusterDNS:
+        - 10.100.0.10
+  bootstrap:
+    packages:
+      - amazon-ssm-agent
+    additionalSystemdUnits:
+      - name: amazon-ssm-agent.service
+        enable: true
+        command: start
+
+--NODEADM-BOUNDARY--
