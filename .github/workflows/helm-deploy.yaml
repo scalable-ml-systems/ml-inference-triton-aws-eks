@@ -1,0 +1,133 @@
+---
+name: Helm Deploy Triton + Monitoring
+
+on:
+  workflow_run:
+    workflows: ["Terraform Infra Provision"]
+    types: [completed]
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read    # required for checkout
+
+env:
+  AWS_REGION: us-east-1
+  TRITON_NAMESPACE: inference
+  MONITORING_NAMESPACE: monitoring
+
+jobs:
+  deploy:
+    name: Deploy Triton + Monitoring Stack
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      # ------------------------------
+      # CHECKOUT REPO
+      # ------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------
+      # Configure AWS Credentials via OIDC
+      # -----------------------------------------------------
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/triton-mlops-github-actions-oidc-role
+          # role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_OIDC_ROLE }}
+          # role-session-name: GitHubActionsOIDCSession
+          aws-region: us-east-1
+
+
+      # Install kubectl + helm
+      # ------------------------------
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      # ------------------------------
+      # Inject Cluster Name
+      # ------------------------------
+      - name: Set EKS Cluster Name
+        run: |
+          echo "EKS_CLUSTER_NAME=${{ secrets.EKS_CLUSTER_NAME }}" >> $GITHUB_ENV
+
+      # ------------------------------
+      # Update kubeconfig
+      # ------------------------------
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region "$AWS_REGION" \
+            --name "$EKS_CLUSTER_NAME"
+
+          kubectl get nodes
+
+      # ------------------------------
+      # Wait for Monitoring Stack
+      # ------------------------------
+      - name: Wait for Prometheus Operator
+        run: |
+          set -e
+          echo "Waiting for Prometheus Operator..."
+
+          kubectl -n "$MONITORING_NAMESPACE" rollout status \
+            deployment/kube-prometheus-stack-operator \
+            --timeout=3m || {
+
+            echo "Trying fallback deployment..."
+            kubectl -n "$MONITORING_NAMESPACE" rollout status \
+              deployment/prometheus-operator \
+              --timeout=3m
+          }
+
+      # ------------------------------
+      # Deploy Triton Using Raw Manifests
+      # ------------------------------
+      - name: Deploy Triton Manifests
+        run: |
+          kubectl apply -f k8s/triton-models-pvc.yaml
+          kubectl apply -f k8s/triton-deployment.yaml
+          kubectl apply -f k8s/triton-service.yaml
+
+      # ------------------------------
+      # Wait for Triton Deployment
+      # ------------------------------
+      - name: Wait for Triton Deployment
+        run: |
+          kubectl -n "$TRITON_NAMESPACE" rollout status \
+            deployment/triton --timeout=5m
+
+      # ------------------------------
+      # OPTIONAL: Deploy Triton Helm Chart
+      # ------------------------------
+      - name: Deploy Triton Helm Chart (Optional)
+        if: false  # change to true if you want to use Helm chart instead
+        run: |
+          helm upgrade --install triton \
+            ./services/triton/helm \
+            --namespace "$TRITON_NAMESPACE" \
+            --create-namespace \
+            -f services/triton/helm/values.yaml
+
+      # ------------------------------
+      # Deploy NVIDIA DCGM Exporter (GPU Metrics)
+      # ------------------------------
+      - name: Deploy DCGM Exporter
+        run: |
+          helm repo add nvidia https://nvidia.github.io/dcgm-exporter
+          helm repo update
+
+          helm upgrade --install dcgm-exporter \
+            nvidia/dcgm-exporter \
+            --namespace "$MONITORING_NAMESPACE" \
+            --create-namespace
+
+      # ------------------------------
+      # COMPLETE
+      # ------------------------------
+      - name: Deployment Complete
+        run: echo "Triton + Monitoring deployed successfully!"

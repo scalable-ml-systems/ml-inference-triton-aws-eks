@@ -1,0 +1,85 @@
+---
+name: Build & Push Triton Image
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "services/triton/**"
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read    # required for checkout
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------
+      # Get OIDC token (debug only)
+      # -----------------------------------------------------
+      - name: Get OIDC token
+        id: idtoken
+        run: |
+          TOKEN=$(curl -sSL "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" \
+            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" | jq -r .value)
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+          echo "Decoded payload:"
+          echo $TOKEN | cut -d "." -f2 | base64 -d | jq .
+
+      # -----------------------------------------------------
+      # Configure AWS Credentials via OIDC
+      # -----------------------------------------------------
+      - name: Configure AWS Credentials via OIDC
+        id: configure
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/GitHubActionsECRRole
+          # role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_OIDC_ROLE }}
+          # role-session-name: GitHubActionsOIDCSession
+          aws-region: us-east-1
+
+      # Debug AFTER credentials are configured
+      - name: Debug OIDC Identity
+        run: |
+          echo "AWS_ROLE_ARN=${{ steps.configure.outputs.role-to-assume }}"
+          aws sts get-caller-identity
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Free disk space
+        run: |
+          docker system prune -af --volumes
+          df -h
+
+      - name: Debug build context
+        run: ls -R services/triton
+
+      # -------------------------------
+      # Docker Build + Push
+      # -------------------------------
+      - name: Build Triton image
+        run: |
+          ECR="${{ secrets.AWS_ECR_URI }}"
+          SHA=$(git rev-parse --short HEAD)
+
+          docker build \
+            -t triton:latest \
+            -f services/triton/Dockerfile \
+            services/triton
+
+          docker tag triton:latest $ECR:latest
+          docker tag triton:latest $ECR:$SHA
+
+      - name: Push image to ECR
+        run: |
+          ECR="${{ secrets.AWS_ECR_URI }}"
+          SHA=$(git rev-parse --short HEAD)
+
+          docker push $ECR:latest
+          docker push $ECR:$SHA

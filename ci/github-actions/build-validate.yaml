@@ -1,0 +1,36 @@
+name: CI - Validate Triton & Terraform
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install deps
+      run: pip install onnx onnxruntime
+
+    - name: Validate Triton Model Repo
+      run: python services/triton/validate-model.py
+
+    - name: Terraform fmt
+      run: terraform -chdir=infra/terraform fmt -check
+
+    - name: Terraform init
+      run: terraform -chdir=infra/terraform init -backend=false
+
+    - name: Terraform validate
+      run: terraform -chdir=infra/terraform validate
+
+    - name: Build Triton Docker Image
+      run: docker build -t triton-test services/triton

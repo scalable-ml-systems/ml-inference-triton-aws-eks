@@ -1,0 +1,50 @@
+name: CD - Deploy Infra & Triton
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/github-actions-oidc-role
+        aws-region: us-east-1
+
+    - name: Terraform Init
+      run: terraform -chdir=infra/terraform init
+
+    - name: Terraform Apply
+      run: terraform -chdir=infra/terraform apply -auto-approve
+
+    - name: Login to ECR
+      run: |
+        aws ecr get-login-password --region us-east-1 \
+        | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+
+    - name: Build and Push Triton Image
+      run: |
+        docker build -t triton services/triton
+        docker tag triton:latest <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/triton:latest
+        docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/triton:latest
+
+    - name: Update Helm Values for Triton
+      run: |
+        sed -i "s|IMAGE_PLACEHOLDER|<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/triton:latest|g" \
+          services/triton/helm/values.yaml
+
+    - name: Deploy Triton with Helm
+      run: |
+        aws eks update-kubeconfig --name mlops-gpu-eks
+        helm upgrade --install triton services/triton/helm -n triton --create-namespace

@@ -1,0 +1,20 @@
+name: OIDC Test
+on: workflow_dispatch
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request OIDC token
+        id: oidc
+        run: |
+          echo "Requesting OIDC token..."
+          TOKEN=$(curl -sSL "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" \
+            -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" | jq -r .value)
+          echo "OIDC_TOKEN=$TOKEN" >> $GITHUB_ENV
+          echo "Token payload:"
+          echo $TOKEN | cut -d "." -f2 | base64 -d | jq .

@@ -1,0 +1,52 @@
+---
+name: Terraform Destroy Infra
+
+"on":
+  workflow_dispatch:     # manual trigger only
+    inputs:
+      confirm:
+        description: "Type DESTROY to confirm"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  destroy:
+    name: Terraform Destroy Infrastructure
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.confirm == 'DESTROY' }}   # safety validation
+
+    defaults:
+      run:
+        working-directory: infra/terraform
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+          output-env-credentials: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: REQUIRE confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "DESTROY" ]; then
+            echo "Confirmation keyword incorrect!"
+            exit 1
+          fi
+
+      - name: Destroy Infrastructure
+        run: terraform destroy -auto-approve
