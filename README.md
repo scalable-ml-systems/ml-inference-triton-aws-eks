@@ -1,23 +1,21 @@
-# scalable-triton-inference-eks 
+## 🚀 Enterprise-Scale MLOps: Triton Inference Ecosystem
 
-GPU-enabled Triton inference server on Kubernetes/EKS — reproducible, secure, and cost-aware.
+If it isn’t observable, automated, and scalable, it isn’t production-ready. Most AI projects fail at the "last mile" because the infrastructure is an afterthought. This project is a full-stack implementation of a high-concurrency inference ecosystem, modeled after the architectures used by Netflix and Airbnb to serve models at scale.
 
-This repository provides a production-ready blueprint for serving AI models at scale. 
+### 🛠 The Stack
+***Inference Server:*** NVIDIA Triton (Multi-framework support: PyTorch, ONNX, TensorRT)
 
----
+***Orchestration:*** Kubernetes (EKS/GKE) for resilient scaling
 
-This project delivers a **cloud-native MLOps platform** purpose-built for GPU inference workloads. It combines **NVIDIA Triton Inference Server** with **AWS EKS** to provide: 
+***Infrastructure as Code:*** Terraform for reproducible GPU-enabled environments
 
--  **High-performance inference** → GPU acceleration for deep learning, LLMs, and computer vision models 
--  **Reproducibility** → Infrastructure-as-code with Terraform and Helm ensures consistent environments across dev, staging, and prod 
--  **Security** → IAM roles via IRSA, scoped permissions, and GitHub OIDC integration for CI/CD trust 
--  **Cost-awareness** → Separate GPU and CPU node groups, teardown hygiene, and lifecycle automation prevent waste 
--  **Observability** → Hooks for Prometheus, Grafana, Loki, and CloudWatch deliver monitoring, logging, and compliance visibility
--  **Scalability & Resilience** → Modular Kubernetes design supports multi-tenant workloads and future service mesh integration
+***Automation:*** Python-driven CI/CD and model lifecycle management
 
----
+***Observability:*** Prometheus & Grafana for real-time inference metrics and Loki for Logging. 
 
-## 💼 Business Value
+
+
+### 💼 Business Value
 
 This platform accelerates AI/ML adoption across industries:
 
@@ -27,15 +25,10 @@ This platform accelerates AI/ML adoption across industries:
 - 🌾 **Agriculture & Energy** → Supports crop yield prediction, resource optimization, and sustainable energy analytics  
 - 🏭 **Manufacturing & Logistics** → Improves predictive maintenance, quality control, and supply chain efficiency through AI pipelines  
 
-It solves real-world challenges:
 
-- ❌ Manual GPU provisioning → ✅ Automated, cost-aware node groups  
-- ❌ Fragile ML pipelines → ✅ Reproducible, versioned deployments  
-- ❌ Security gaps → ✅ IAM-scoped access, IRSA, and GitHub OIDC  
-- ❌ No observability → ✅ Hooks for Prometheus, Grafana, and FluentBit  
-- ❌ No disaster recovery → ✅ Multi-region scaffolding (planned)
+<img width="800" alt="Triton-Architecture" src="https://github.com/user-attachments/assets/0cfa0d85-4ca5-41d4-9918-b46c08660d81" />
 
----
+
 
 ## 🧱 Architecture Overview
 
@@ -51,7 +44,7 @@ It solves real-world challenges:
 | CI/CD                  | GitHub Actions + Terraform + Helm for secure automation                 |
 | Observability          | Prometheus, Grafana, Loki, CloudWatch integration                       |
 
----
+
 
 ## 🔐 Security & Compliance
 
@@ -60,7 +53,7 @@ It solves real-world challenges:
 - Secrets managed via Kubernetes  
 - Future: mTLS via Istio service mesh
 
----
+
 
 ## 📦 Reproducibility & Lifecycle : 
 
@@ -70,16 +63,34 @@ It solves real-world challenges:
 - Versioned container images via Amazon ECR
 - Models hosted in the aws EFS using the kubernetes persistant volume 
 
+
+
+## 🚀 Key Engineering Wins
+
+1. Optimized GPU Utilization
+Implemented Dynamic Batching and Instance Groups. This allows the server to group individual inference requests together on the fly, significantly increasing throughput without manual tuning.
+
+2. Multi-Model Concurrency
+Configured the ecosystem to serve multiple models (Image Classification & NLP) simultaneously on a single GPU/Node, reducing infrastructure overhead and costs—a critical requirement for Fortune 500 efficiency.
+
+3. SRE-First Observability
+Integrated custom Prometheus exporters to track:
+
+   - Inference Latency (p95/p99)
+
+   - Request Queue Time
+
+   - GPU Memory Utilization
+
 ---
 
-## 🚀 Outcomes
+<img width="600" alt="Grafana-Ytiton-dashboard" src="https://github.com/user-attachments/assets/c8639bd1-4bbb-466e-a1c5-92cf450d6e6c" />
 
-This isn’t just a cluster — it’s a **launchpad for scalable, a  uditable, cost-efficient AI workloads**.  
-Whether you're deploying LLMs, computer vision models, or real-time inference, this platform ensures:
 
-- 🔁 Reproducibility  
-- 🔐 Security by default  
-- 💰 Cost control  
-- 📈 Observability  
-- 🧩 Modular onboarding  
+
+<img width="600" alt="Prometheus-Triton" src="https://github.com/user-attachments/assets/51e758eb-ccc0-4ead-97f9-9387fe3a3724" />
+
+
+    
+<img width="707" height="394" alt="Triton-Tesla-GPU" src="https://github.com/user-attachments/assets/a2417084-add7-4f4a-949d-49ff47979ba0" />
 
