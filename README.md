@@ -2,17 +2,17 @@
 
 If it isn’t observable, automated, and scalable, it isn’t production-ready. Most AI projects fail at the "last mile" because the infrastructure is an afterthought. This project is a full-stack implementation of a high-concurrency inference ecosystem, modeled after the architectures used by Netflix and Airbnb to serve models at scale.
 
-### 🛠 The Stack
-***Inference Server:*** NVIDIA Triton (Multi-framework support: PyTorch, ONNX, TensorRT)
+### ⚡ ML Inference Platform Stack
 
-***Orchestration:*** Kubernetes (EKS/GKE) for resilient scaling
-
-***Infrastructure as Code:*** Terraform for reproducible GPU-enabled environments
-
-***Automation:*** Python-driven CI/CD and model lifecycle management
-
-***Observability:*** Prometheus & Grafana for real-time inference metrics and Loki for Logging. 
-
+- **Inference Server**: NVIDIA Triton (PyTorch, ONNX, TensorRT)
+- **Orchestration**: Kubernetes (EKS/GKE)
+- **Infrastructure as Code**: Terraform (GPU/CPU node groups, VPC, IAM)
+- **Automation**: Python CI/CD pipelines, GitHub Actions
+- **Deployment Packaging**: Helm charts (Triton, monitoring, plugins)
+- **Storage**: EFS CSI Driver, S3/ECR model repo
+- **Networking**: Amazon VPC CNI, Calico (optional), Istio (service mesh)
+- **Observability**: Prometheus, Grafana, Loki, DCGM Exporter, `nvidia-smi`
+- **Security**: IAM roles, Kubernetes RBAC, Secrets Manager/KMS, Network Policies
 
 
 ### 💼 Business Value
