@@ -1,8 +1,8 @@
-## 🚀 Enterprise-Scale : End-to-End Triton Inference Ecosystem
+##  MLOps Inference Platform Using Nvidia Triton Inference Server 
 
 If it isn’t observable, automated, and scalable, it isn’t production-ready. Most AI projects fail at the "last mile" because the infrastructure is an afterthought. This project is a full-stack implementation of a high-concurrency inference ecosystem, modeled after the architectures used by Netflix and Airbnb to serve models at scale.
 
-### ⚡ ML Inference Platform Stack
+###  MLOps GPU Inference Platform Stack
 
 - **Inference Server**: NVIDIA Triton (PyTorch, ONNX, TensorRT)
 - **Orchestration**: Kubernetes (EKS/GKE)
