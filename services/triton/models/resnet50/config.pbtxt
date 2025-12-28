@@ -1,0 +1,47 @@
+name: "resnet50"
+platform: "onnxruntime_onnx"
+max_batch_size: 32  # Increased for higher throughput (ResNet50 is light)
+
+# 1. THE "THROUGHPUT" ENGINE: Dynamic Batching
+# This groups individual requests into one GPU operation.
+dynamic_batching {
+  preferred_batch_size: [ 8, 16, 32 ] # Multiples of 8 are optimal for Tensor Cores
+  max_queue_delay_microseconds: 200   # Wait 0.2ms to "pack" the batch
+}
+
+# 2. THE "SPEED" ACCELERATOR: TensorRT
+# This tells the ONNX backend to use the TensorRT engine for 2x-5x speedup.
+optimization {
+  execution_accelerators {
+    gpu_execution_accelerator : [ {
+      name : "tensorrt"
+      parameters { key: "precision_mode" value: "FP16" } # Use FP16 for speed/efficiency
+    }]
+  }
+}
+
+input [
+  {
+    name: "data"
+    data_type: TYPE_FP32
+    format: FORMAT_NCHW
+    dims: [3, 224, 224]
+  }
+]
+
+output [
+  {
+    name: "resnetv24_dense0_fwd"
+    data_type: TYPE_FP32
+    dims: [1000]
+  }
+]
+
+# 3. THE "CONCURRENCY" KNOB: Instance Groups
+# Running 2 instances allows the GPU to process one while loading the next.
+instance_group [
+  {
+    kind: KIND_GPU
+    count: 2  # Allows parallel execution on the same GPU
+  }
+]
