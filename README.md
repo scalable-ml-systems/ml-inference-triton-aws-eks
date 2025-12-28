@@ -1,6 +1,6 @@
 ##  MLOps Inference Platform Using Nvidia Triton Inference Server 
 
-If it isn’t observable, automated, and scalable, it isn’t production-ready. Most AI projects fail at the "last mile" because the infrastructure is an afterthought. This project is a full-stack implementation of a high-concurrency inference ecosystem, modeled after the architectures used by Netflix and Airbnb to serve models at scale.
+If it isn’t observable, automated, and scalable, it isn’t production-ready. Most AI projects fail at the "last mile" because the infrastructure is an afterthought. This project is a full-stack implementation of a high-concurrency inference ecosystem to serve models at scale.
 
 ###  MLOps GPU Inference Platform Stack
 
@@ -23,10 +23,12 @@ This platform accelerates AI/ML adoption across industries:
 - 💳 **Finance & Insurance** → Powers fraud detection, risk modeling, and real‑time customer insights with secure GPU inference  
 - 🏨 **Hospitality & Retail** → Delivers personalized recommendations, demand forecasting, and customer experience optimization  
 - 🌾 **Agriculture & Energy** → Supports crop yield prediction, resource optimization, and sustainable energy analytics  
-- 🏭 **Manufacturing & Logistics** → Improves predictive maintenance, quality control, and supply chain efficiency through AI pipelines  
+- 🏭 **Manufacturing & Logistics** → Improves predictive maintenance, quality control, and supply chain efficiency through AI pipelines
 
+  
 
-<img width="800" alt="Triton-Architecture" src="https://github.com/user-attachments/assets/0cfa0d85-4ca5-41d4-9918-b46c08660d81" />
+<img width="800" alt="Triton-Inference" src="https://github.com/user-attachments/assets/81306c91-4d10-4e72-b516-2dedd2c43ba4" />
+
 
 
 
@@ -43,7 +45,7 @@ This platform accelerates AI/ML adoption across industries:
 | EFS                    | Shared model repository mounted into Triton pods                        |
 | CI/CD                  | GitHub Actions + Terraform + Helm for secure automation                 |
 | Observability          | Prometheus, Grafana, Loki, CloudWatch integration                       |
-
+| Service Mesh           | Istio                                                                   | 
 
 
 ## 🔐 Security & Compliance
