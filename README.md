@@ -1,6 +1,6 @@
 ##  MLOps GPU Inference Platform Using Nvidia Triton Inference Server 
 
-### Enterprise-Grade Scalable Inference using NVIDIA Triton & AWS EKS
+### Scalable Inference using NVIDIA Triton & AWS EKS
 "If it isn’t observable, automated, and scalable, it isn’t production-ready."
 
 This project is an end-to-end implementation of a high-concurrency inference ecosystem designed to solve the "GPU Waste" problem. By leveraging NVIDIA Triton on AWS EKS, I’ve built a system that treats AI models as first-class citizens in a production-grade inference platform, maximizing throughput and reducing infrastructure costs.
@@ -30,10 +30,7 @@ This platform accelerates AI/ML adoption across industries:
 - 🏭 **Manufacturing & Logistics** → Improves predictive maintenance, quality control, and supply chain efficiency through AI pipelines
 
   
-
 <img width="800" alt="Triton-Inference" src="https://github.com/user-attachments/assets/81306c91-4d10-4e72-b516-2dedd2c43ba4" />
-
-
 
 
 ## 🧱 Architecture Overview
@@ -53,16 +50,12 @@ This platform accelerates AI/ML adoption across industries:
 
 
 ## 🔐 Security & Compliance
-
 - IAM roles scoped via IRSA  
 - GitHub OIDC trust for CI/CD  
 - Secrets managed via Kubernetes  
 - zero Trust: mTLS via Istio service mesh
 
-
-
 ## 📦 Reproducibility & Lifecycle : 
-
 - Infrastructure-as-code via Terraform  
 - Helm charts for Triton + observability stack  
 - Modular teardown and rebuild workflows  
