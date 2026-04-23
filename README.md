@@ -18,18 +18,7 @@ This project is an end-to-end implementation of a high-concurrency inference eco
 - **Observability**: Prometheus, Grafana, Loki, DCGM Exporter, `nvidia-smi`
 - **Security**: IAM roles, Kubernetes RBAC, Secrets Manager/KMS, Network Policies
 
-
-### 💼 Business Value
-
-This platform accelerates AI/ML adoption across industries:
-
-- 🧬 **Biotech & Medicine** → Enables faster drug discovery, medical imaging analysis, and precision diagnostics at scale  
-- 💳 **Finance & Insurance** → Powers fraud detection, risk modeling, and real‑time customer insights with secure GPU inference  
-- 🏨 **Hospitality & Retail** → Delivers personalized recommendations, demand forecasting, and customer experience optimization  
-- 🌾 **Agriculture & Energy** → Supports crop yield prediction, resource optimization, and sustainable energy analytics  
-- 🏭 **Manufacturing & Logistics** → Improves predictive maintenance, quality control, and supply chain efficiency through AI pipelines
-
-  
+ 
 <img width="800" alt="Triton-Inference" src="https://github.com/user-attachments/assets/81306c91-4d10-4e72-b516-2dedd2c43ba4" />
 
 
